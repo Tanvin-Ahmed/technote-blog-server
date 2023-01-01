@@ -3,4 +3,6 @@ module.exports.config = {
   db_dadatabase: process.env.DB_DATABASE,
   db_user: process.env.DB_USER,
   db_host: process.env.DB_HOST,
+
+  jwt_secret: process.env.JWT_SECRATE,
 };
