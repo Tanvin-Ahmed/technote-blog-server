@@ -13,10 +13,10 @@ const getExist = (email) => {
   });
 };
 
-const createUser = (info) => {
-  const q = "INSERT INTO users (email, username, password) VALUES (?,?,?)";
+const isAdminExist = (email) => {
+  const q = "SELECT * FROM admins WHERE email = ?";
   return new Promise((resolve, reject) => {
-    db.query(q, [info.email, info.username, info.password], (err, rows) => {
+    db.query(q, [email], (err, rows) => {
       if (err) {
         reject(err);
       } else {
@@ -26,4 +26,22 @@ const createUser = (info) => {
   });
 };
 
-module.exports = { getExist, createUser };
+const createUser = (info) => {
+  const q =
+    "INSERT INTO users (email, username, password, admins_id) VALUES (?,?,?, ?)";
+  return new Promise((resolve, reject) => {
+    db.query(
+      q,
+      [info.email, info.username, info.password, "1"],
+      (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      }
+    );
+  });
+};
+
+module.exports = { getExist, createUser, isAdminExist };

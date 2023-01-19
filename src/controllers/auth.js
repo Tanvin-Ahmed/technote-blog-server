@@ -1,4 +1,5 @@
-const { getExist, createUser } = require("../services/auth");
+const { getExist, createUser, isAdminExist } = require("../services/auth");
+const { tokenGenerator } = require("../utils/auth/tokenGenerator");
 const {
   isPasswordCorrect,
 } = require("../utils/password/checkPasswordValidation");
@@ -10,12 +11,19 @@ const register = async (req, res) => {
 
     const data = await getExist(email);
 
-    if (data) return res.status(409).json({ message: "User already exists!" });
+    if (data.length)
+      return res.status(409).json({ message: "User already exists!" });
 
     const hashPassword = await hashGenerator(password);
     await createUser({ email, password: hashPassword, username });
 
-    return res.status(200).json({ message: "User created successfully!" });
+    const userInfo = await getExist(email);
+    const { password: p, ...otherInfo } = userInfo[0];
+    const token = tokenGenerator({ ...otherInfo, isAdmin: false });
+
+    return res
+      .status(200)
+      .json({ message: "User created successfully!", token, user: otherInfo });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -24,29 +32,39 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const data = await getExist(req.body.email);
+    const admin = await isAdminExist(req.body.email);
 
-    if (!data.length) {
+    if (admin.length) {
+      await userLogin({ ...admin[0], isAdmin: true }, req, res);
+    } else if (data.length) {
+      await userLogin({ ...data[0], isAdmin: false }, req, res);
+    } else {
       return res.status(401).json({ message: "Wrong Email or Password!" });
     }
-
-    const isValidPassword = await isPasswordCorrect(
-      data[0].password,
-      req.body.password
-    );
-
-    if (!isValidPassword) {
-      return res.status(401).json({ message: "Wrong Email or Password!" });
-    }
-
-    return res.status(200).json({ message: "login successful!" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-const logout = async (req, res) => {
-  try {
-  } catch (error) {}
+const userLogin = async (data, req, res) => {
+  const isValidPassword = await isPasswordCorrect(
+    data.password,
+    req.body.password
+  );
+
+  if (!isValidPassword) {
+    return res.status(401).json({ message: "Wrong Email or Password!" });
+  }
+
+  const { password, ...otherInfo } = data;
+  const token = tokenGenerator({
+    ...otherInfo,
+    isAdmin: data.isAdmin,
+  });
+
+  return res
+    .status(200)
+    .json({ message: "login successful!", token, user: otherInfo });
 };
 
-module.exports = { register, login, logout };
+module.exports = { register, login };
