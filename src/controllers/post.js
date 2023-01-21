@@ -9,12 +9,12 @@ const {
 const addPost = async (req, res) => {
   try {
     const info = req.body;
-    const img = req.file.filename;
 
-    const data = await createPost({ ...info, img }, req.user.id);
+    const data = await createPost(info, req.user.id);
     const newBlog = await findSinglePost(data.insertId);
     return res.status(200).json(newBlog);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "Blog not uploaded!", error: true });
   }
 };
@@ -23,7 +23,6 @@ const getAllPost = async (req, res) => {
   try {
     const category = req.query.cat;
     const data = await findAllPost(category);
-
     return res.status(200).json(data);
   } catch (error) {
     return res.status(404).json({ message: "No blogs found!", error: true });

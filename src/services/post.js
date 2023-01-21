@@ -2,7 +2,7 @@ const { db } = require("../db/db");
 
 const createPost = async (info, uid) => {
   const q =
-    "INSERT INTO posts (`title`, `description`, `img`, `date`, `status`, `admin_id`, `user_id`, `category`) VALUES(?,?,?,?,?,?,?,?)";
+    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admin_id`, `user_id`, `category`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -11,11 +11,12 @@ const createPost = async (info, uid) => {
         info.title,
         info.description,
         info.img,
-        info.date,
+        info.createAt,
         "pending",
         "1",
         uid,
         info.category,
+        info.updateAt,
       ],
       (err, rows) => {
         if (err) reject(err);
@@ -39,8 +40,12 @@ const findAllPost = (category = "") => {
 };
 
 const findSinglePost = (id) => {
-  const q =
-    "SELECT u.username AS authorName, u.id AS authorId, u.img AS authorImg, p.id, `title`, `description`, `date`, `category`, p.img, FROM users u JOIN posts p ON u.id = p.uid WHERE p.id = ?";
+  const q = `
+    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, posts.category, posts.admin_id, posts.createAt, posts.updateAt
+    FROM users
+    JOIN posts
+    ON users.id = posts.user_id;
+    `;
 
   return new Promise((resolve, reject) => {
     db.query(q, [id], (err, results) => {
@@ -52,7 +57,7 @@ const findSinglePost = (id) => {
 
 const updateSinglePost = async (info, uid) => {
   const q =
-    "UPDTAE INTO posts title=?, description=?, img=?, status=?, category=? WHERE id=? AND uid=?";
+    "UPDTAE INTO posts title=?, description=?, img=?, status=?, category=?, updateAt=? WHERE id=? AND uid=?";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -61,8 +66,9 @@ const updateSinglePost = async (info, uid) => {
         info.title,
         info.description,
         info.img,
-        "pending",
+        info.status,
         info.category,
+        info.updateAt,
         info.id,
         uid,
       ],
