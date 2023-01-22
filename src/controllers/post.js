@@ -1,9 +1,11 @@
 const {
-  findAllPost,
   findSinglePost,
   deleteSinglePost,
   createPost,
   updateSinglePost,
+  findAllPostByStatus,
+  findAllPostCount,
+  approvedSinglePost,
 } = require("../services/post");
 
 const addPost = async (req, res) => {
@@ -19,13 +21,30 @@ const addPost = async (req, res) => {
   }
 };
 
-const getAllPost = async (req, res) => {
+const getAllPostsByStatus = async (req, res) => {
+  const category = req.query.cat;
+  const status = req.query.status;
+  const limit = req.query.limit;
+  const offset = req.query.offset;
   try {
-    const category = req.query.cat;
-    const data = await findAllPost(category);
+    const data = await findAllPostByStatus(status, category, limit, offset);
     return res.status(200).json(data);
   } catch (error) {
-    return res.status(404).json({ message: "No blogs found!", error: true });
+    return res
+      .status(404)
+      .json({ message: `No ${status} blogs found!`, error: true });
+  }
+};
+
+const getAllPostCount = async (req, res) => {
+  try {
+    const status = req.params.status;
+    const count = await findAllPostCount(status);
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went wraing!`, error: true });
   }
 };
 
@@ -49,6 +68,19 @@ const updatePost = async (req, res) => {
   }
 };
 
+const updatePostStatus = async (req, res) => {
+  try {
+    const info = req.body;
+    await approvedSinglePost(info);
+    return res.status(200).json({ message: "Blog Approved successfully" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong!", error: true });
+  }
+};
+
 const deletePost = async (req, res) => {
   try {
     const id = req.params.id;
@@ -61,4 +93,12 @@ const deletePost = async (req, res) => {
   }
 };
 
-module.exports = { addPost, getAllPost, getSinglePost, updatePost, deletePost };
+module.exports = {
+  addPost,
+  getSinglePost,
+  updatePost,
+  deletePost,
+  getAllPostsByStatus,
+  getAllPostCount,
+  updatePostStatus,
+};
