@@ -72,7 +72,9 @@ const updatePostStatus = async (req, res) => {
   try {
     const info = req.body;
     await approvedSinglePost(info);
-    return res.status(200).json({ message: "Blog Approved successfully" });
+    return res
+      .status(200)
+      .json({ message: info.id + " number Blog Approved successfully" });
   } catch (error) {
     console.log(error);
     return res

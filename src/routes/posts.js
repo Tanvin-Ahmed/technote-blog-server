@@ -13,7 +13,7 @@ const router = express.Router();
 
 /* GET users listing. */
 router.get("/", getAllPostsByStatus);
-router.get("/:id", getSinglePost);
+router.get("/single/:id", getSinglePost);
 router.get("/get-count/:status", getAllPostCount);
 router.post("/create", isUser, addPost);
 router.delete("/delete/:id", isUser, deletePost);

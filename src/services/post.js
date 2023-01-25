@@ -2,7 +2,7 @@ const { db } = require("../db/db");
 
 const createPost = async (info, uid) => {
   const q =
-    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admin_id`, `user_id`, `category`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admin_id`, `user_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -28,15 +28,25 @@ const createPost = async (info, uid) => {
 
 const findAllPostByStatus = (status, category, limit, offset) => {
   const q = category
-    ? `SELECT * FROM posts WHERE status = ? AND category = ? ORDER BY id LIMIT ${limit} OFFSET ${offset}`
+    ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
+    JOIN categories ON posts.categories_id = categories.id 
+    WHERE status = ? AND categories_id = ? 
+    ORDER BY posts.id
+    LIMIT ${limit} 
+    OFFSET ${offset}`
     : status === "approved"
-    ? `SELECT * FROM posts WHERE status = ? ORDER BY id LIMIT ${limit} OFFSET ${offset}`
-    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, posts.category, posts.admin_id, posts.createAt, posts.updateAt
+    ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
+    JOIN categories ON posts.categories_id = categories.id 
+    WHERE status = ? 
+    ORDER BY posts.id 
+    LIMIT ${limit} 
+    OFFSET ${offset}`
+    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
      FROM posts 
-     JOIN users 
-     ON users.id = posts.user_id 
+     JOIN users ON users.id = posts.user_id 
+     JOIN categories ON categories.id = posts.categories_id
      WHERE status = ? 
-     ORDER BY id 
+     ORDER BY posts.id
      LIMIT ${limit} 
      OFFSET ${offset}`;
 
@@ -61,10 +71,11 @@ const findAllPostCount = (status) => {
 
 const findSinglePost = (id) => {
   const q = `
-    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, posts.category, posts.admin_id, posts.createAt, posts.updateAt
-    FROM users
-    JOIN posts
-    ON users.id = posts.user_id
+    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
+    FROM posts
+    JOIN users ON users.id = posts.user_id
+    JOIN categories ON categories.id = posts.categories_id
+    WHERE posts.id = ?
     `;
 
   return new Promise((resolve, reject) => {
@@ -77,7 +88,7 @@ const findSinglePost = (id) => {
 
 const updateSinglePost = async (info, uid) => {
   const q =
-    "UPDTAE INTO posts title=?, description=?, img=?, status=?, category=?, updateAt=? WHERE id=? AND user_id=?";
+    "UPDTAE INTO posts title=?, description=?, img=?, status=?, categories_id=?, updateAt=? WHERE id=? AND user_id=?";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -111,11 +122,11 @@ const approvedSinglePost = (info) => {
   });
 };
 
-const deleteSinglePost = (id, uid) => {
-  const q = "DELETE FROM posts WHERE id = ? AND user_id = ?";
+const deleteSinglePost = (id, admin_id) => {
+  const q = "DELETE FROM posts WHERE id = ? AND admin_id = ?";
 
   return new Promise((resolve, reject) => {
-    db.query(q, [id, uid], (err, results) => {
+    db.query(q, [id, admin_id], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
