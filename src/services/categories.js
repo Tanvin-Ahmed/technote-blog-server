@@ -21,8 +21,19 @@ const findSingleCategory = (id) => {
   });
 };
 
-const findCategories = () => {
-  const q = `SELECT * FROM categories`;
+const findCategories = (limit, offset) => {
+  const q = `SELECT * FROM categories LIMIT ${limit} OFFSET ${offset}`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};
+
+const findCategoryCount = () => {
+  const q = `SELECT count(*) FROM categories`;
 
   return new Promise((resolve, reject) => {
     db.query(q, (err, result) => {
@@ -72,4 +83,5 @@ module.exports = {
   findSingleCategory,
   updateCategory,
   findCategoriesBySearch,
+  findCategoryCount,
 };

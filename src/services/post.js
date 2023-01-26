@@ -69,6 +69,17 @@ const findAllPostCount = (status) => {
   });
 };
 
+const findAllPostCountByCategory = (category_id) => {
+  const q = `SELECT count(*) FROM posts WHERE categories_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, [category_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
 const findSinglePost = (id) => {
   const q = `
     SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
@@ -141,4 +152,5 @@ module.exports = {
   findAllPostByStatus,
   findAllPostCount,
   approvedSinglePost,
+  findAllPostCountByCategory,
 };

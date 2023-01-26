@@ -6,6 +6,7 @@ const {
   findAllPostByStatus,
   findAllPostCount,
   approvedSinglePost,
+  findAllPostCountByCategory,
 } = require("../services/post");
 
 const addPost = async (req, res) => {
@@ -40,6 +41,18 @@ const getAllPostCount = async (req, res) => {
   try {
     const status = req.params.status;
     const count = await findAllPostCount(status);
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went wraing!`, error: true });
+  }
+};
+
+const getAllPostCountByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+    const count = await findAllPostCountByCategory(category);
     return res.status(200).json({ count: count[0]["count(*)"] });
   } catch (error) {
     return res
@@ -103,4 +116,5 @@ module.exports = {
   getAllPostsByStatus,
   getAllPostCount,
   updatePostStatus,
+  getAllPostCountByCategory,
 };

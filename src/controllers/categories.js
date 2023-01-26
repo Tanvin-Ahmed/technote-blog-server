@@ -5,6 +5,7 @@ const {
   findSingleCategory,
   updateCategory,
   findCategoriesBySearch,
+  findCategoryCount,
 } = require("../services/categories");
 
 const addNewCategory = async (req, res) => {
@@ -24,12 +25,24 @@ const addNewCategory = async (req, res) => {
 
 const getAllCategory = async (req, res) => {
   try {
-    const categories = await findCategories();
+    const { limit, offset } = req.query;
+    const categories = await findCategories(limit, offset);
     return res.status(200).json(categories);
   } catch (error) {
     return res
       .status(404)
       .json({ message: "Something went wrong!", error: true });
+  }
+};
+
+const getCategoryCount = async (req, res) => {
+  try {
+    const count = await findCategoryCount();
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went wraing!`, error: true });
   }
 };
 
@@ -79,4 +92,5 @@ module.exports = {
   updateCat,
   getAllCategory,
   getAllCategoryBySearch,
+  getCategoryCount,
 };
