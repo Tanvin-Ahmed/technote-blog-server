@@ -7,6 +7,8 @@ const {
   findAllPostCount,
   approvedSinglePost,
   findAllPostCountByCategory,
+  findPostByUser,
+  findPostsCountOfUser,
 } = require("../services/post");
 
 const addPost = async (req, res) => {
@@ -49,6 +51,19 @@ const getAllPostCount = async (req, res) => {
   }
 };
 
+const getUserPostsCount = async (req, res) => {
+  try {
+    const id = req.user.id;
+    const { status } = req.query;
+    const count = await findPostsCountOfUser(id, status);
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went wraing!`, error: true });
+  }
+};
+
 const getAllPostCountByCategory = async (req, res) => {
   try {
     const category = req.params.category;
@@ -58,6 +73,18 @@ const getAllPostCountByCategory = async (req, res) => {
     return res
       .status(404)
       .json({ message: `Something went wraing!`, error: true });
+  }
+};
+
+const getPostsByUser = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { status, limit, offset } = req.query;
+    const blogs = await findPostByUser(user_id, status, limit, offset);
+
+    return res.status(200).json(blogs);
+  } catch (error) {
+    return res.status(500).json({ message: "Blogs not found!", error: true });
   }
 };
 
@@ -99,8 +126,7 @@ const updatePostStatus = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const id = req.params.id;
-    const uid = req.user.id;
-    await deleteSinglePost(id, uid);
+    await deleteSinglePost(id);
 
     return res.status(200).json({ message: "Blog deleted successfully!" });
   } catch (error) {
@@ -117,4 +143,6 @@ module.exports = {
   getAllPostCount,
   updatePostStatus,
   getAllPostCountByCategory,
+  getPostsByUser,
+  getUserPostsCount,
 };

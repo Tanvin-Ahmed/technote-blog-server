@@ -31,14 +31,14 @@ const findAllPostByStatus = (status, category, limit, offset) => {
     ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
     JOIN categories ON posts.categories_id = categories.id 
     WHERE status = ? AND categories_id = ? 
-    ORDER BY posts.id
+    ORDER BY posts.id DESC
     LIMIT ${limit} 
     OFFSET ${offset}`
     : status === "approved"
     ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
     JOIN categories ON posts.categories_id = categories.id 
     WHERE status = ? 
-    ORDER BY posts.id 
+    ORDER BY posts.id DESC
     LIMIT ${limit} 
     OFFSET ${offset}`
     : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
@@ -63,6 +63,33 @@ const findAllPostCount = (status) => {
 
   return new Promise((resolve, reject) => {
     db.query(q, [status], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
+const findPostsCountOfUser = (user_id, status) => {
+  const q = `SELECT count(*) FROM posts WHERE user_id = ? AND status = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, [user_id, status], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
+const findPostByUser = (user_id, status, limit, offset) => {
+  const q = `SELECT posts.id, posts.title, posts.img, posts.status, posts.createAt, posts.updateAt, categories.id AS categoryId, categories.category_name FROM posts 
+  JOIN categories ON categories.id = posts.categories_id 
+  WHERE user_id = ? AND status = ? 
+  ORDER BY posts.id DESC
+  LIMIT ${limit} 
+  OFFSET ${offset}`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, [user_id, status], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
@@ -133,11 +160,11 @@ const approvedSinglePost = (info) => {
   });
 };
 
-const deleteSinglePost = (id, admin_id) => {
-  const q = "DELETE FROM posts WHERE id = ? AND admin_id = ?";
+const deleteSinglePost = (id) => {
+  const q = "DELETE FROM posts WHERE id = ?";
 
   return new Promise((resolve, reject) => {
-    db.query(q, [id, admin_id], (err, results) => {
+    db.query(q, [id], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
@@ -153,4 +180,6 @@ module.exports = {
   findAllPostCount,
   approvedSinglePost,
   findAllPostCountByCategory,
+  findPostByUser,
+  findPostsCountOfUser,
 };

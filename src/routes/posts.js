@@ -8,6 +8,8 @@ const {
   getAllPostCount,
   updatePostStatus,
   getAllPostCountByCategory,
+  getPostsByUser,
+  getUserPostsCount,
 } = require("../controllers/post");
 const { isUser, isAdmin } = require("../utils/auth/tokenVerification");
 const router = express.Router();
@@ -17,6 +19,8 @@ router.get("/", getAllPostsByStatus);
 router.get("/single/:id", getSinglePost);
 router.get("/get-count/:status", getAllPostCount);
 router.get("/get-count-by-category/:category", getAllPostCountByCategory);
+router.get("/get-posts-count-by-user", isUser, getUserPostsCount);
+router.get("/get-posts-by-user", isUser, getPostsByUser);
 router.post("/create", isUser, addPost);
 router.delete("/delete/:id", isUser, deletePost);
 router.put("/update", isUser, updatePost);
