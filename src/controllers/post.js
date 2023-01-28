@@ -25,17 +25,40 @@ const addPost = async (req, res) => {
 };
 
 const getAllPostsByStatus = async (req, res) => {
-  const category = req.query.cat;
   const status = req.query.status;
-  const limit = req.query.limit;
-  const offset = req.query.offset;
+  const search = req.query.search;
   try {
-    const data = await findAllPostByStatus(status, category, limit, offset);
+    const category = req.query.cat;
+    const limit = req.query.limit;
+    const offset = req.query.offset;
+    const data = await findAllPostByStatus(
+      status,
+      category,
+      search,
+      limit,
+      offset
+    );
+
+    if (!data.length) {
+      return res.status(404).json({
+        message: category
+          ? `Searched category blogs not found!`
+          : search
+          ? `No blogs found like '${search}'`
+          : `No ${status} blogs found!`,
+        error: true,
+      });
+    }
     return res.status(200).json(data);
   } catch (error) {
-    return res
-      .status(404)
-      .json({ message: `No ${status} blogs found!`, error: true });
+    return res.status(404).json({
+      message: category
+        ? `Searched category blogs not found!`
+        : search
+        ? `No blogs found like '${search}'`
+        : `No ${status} blogs found!`,
+      error: true,
+    });
   }
 };
 

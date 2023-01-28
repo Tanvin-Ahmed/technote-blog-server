@@ -26,7 +26,7 @@ const createPost = async (info, uid) => {
   });
 };
 
-const findAllPostByStatus = (status, category, limit, offset) => {
+const findAllPostByStatus = (status, category, search, limit, offset) => {
   const q = category
     ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
     JOIN categories ON posts.categories_id = categories.id 
@@ -37,7 +37,7 @@ const findAllPostByStatus = (status, category, limit, offset) => {
     : status === "approved"
     ? `SELECT *, categories.id AS categoryId, posts.id FROM posts 
     JOIN categories ON posts.categories_id = categories.id 
-    WHERE status = ? 
+    WHERE status = ? ${search ? `AND title LIKE '%${search}%'` : ``}
     ORDER BY posts.id DESC
     LIMIT ${limit} 
     OFFSET ${offset}`

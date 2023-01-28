@@ -16,7 +16,6 @@ const addNewCategory = async (req, res) => {
 
     return res.status(200).json(newCategory[0]);
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .json({ message: "Something went wrong!", error: true });
@@ -50,7 +49,6 @@ const getAllCategoryBySearch = async (req, res) => {
   try {
     const search = req.params.search;
     const categories = await findCategoriesBySearch(search);
-    console.log(categories);
     return res.status(200).json(categories);
   } catch (error) {
     return res
