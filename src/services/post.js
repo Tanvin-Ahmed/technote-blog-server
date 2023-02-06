@@ -124,7 +124,7 @@ const findSinglePost = (id) => {
   });
 };
 
-const updateSinglePost = async (info, uid) => {
+const updateSinglePost = (info, uid) => {
   const q =
     "UPDTAE INTO posts title=?, description=?, img=?, status=?, categories_id=?, updateAt=? WHERE id=? AND user_id=?";
 
