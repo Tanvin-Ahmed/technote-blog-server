@@ -9,6 +9,8 @@ const {
   findAllPostCountByCategory,
   findPostByUser,
   findPostsCountOfUser,
+  findSearchedPostCount,
+  findSearchedCategoryWisePostCount,
 } = require("../services/post");
 
 const addPost = async (req, res) => {
@@ -27,8 +29,8 @@ const addPost = async (req, res) => {
 const getAllPostsByStatus = async (req, res) => {
   const status = req.query.status;
   const search = req.query.search;
+  const category = req.query.cat;
   try {
-    const category = req.query.cat;
     const limit = req.query.limit;
     const offset = req.query.offset;
     const data = await findAllPostByStatus(
@@ -70,7 +72,31 @@ const getAllPostCount = async (req, res) => {
   } catch (error) {
     return res
       .status(404)
-      .json({ message: `Something went wraing!`, error: true });
+      .json({ message: `Something went warning!`, error: true });
+  }
+};
+
+const getSearchedPostCount = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    const count = await findSearchedPostCount(status, search);
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went warning!`, error: true });
+  }
+};
+
+const getSearchedCategoryWisePostCount = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    const count = await findSearchedCategoryWisePostCount(status, search);
+    return res.status(200).json({ count: count[0]["count(*)"] });
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ message: `Something went warning!`, error: true });
   }
 };
 
@@ -83,7 +109,7 @@ const getUserPostsCount = async (req, res) => {
   } catch (error) {
     return res
       .status(404)
-      .json({ message: `Something went wraing!`, error: true });
+      .json({ message: `Something went warning!`, error: true });
   }
 };
 
@@ -168,4 +194,6 @@ module.exports = {
   getAllPostCountByCategory,
   getPostsByUser,
   getUserPostsCount,
+  getSearchedPostCount,
+  getSearchedCategoryWisePostCount,
 };

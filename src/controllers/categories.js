@@ -25,7 +25,9 @@ const addNewCategory = async (req, res) => {
 const getAllCategory = async (req, res) => {
   try {
     const { limit, offset } = req.query;
+
     const categories = await findCategories(limit, offset);
+
     return res.status(200).json(categories);
   } catch (error) {
     return res

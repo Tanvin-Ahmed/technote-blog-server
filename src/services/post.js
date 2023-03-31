@@ -2,7 +2,7 @@ const { db } = require("../db/db");
 
 const createPost = async (info, uid) => {
   const q =
-    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admin_id`, `user_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admins_id`, `users_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -41,9 +41,9 @@ const findAllPostByStatus = (status, category, search, limit, offset) => {
     ORDER BY posts.id DESC
     LIMIT ${limit} 
     OFFSET ${offset}`
-    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
+    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admins_id, posts.createAt, posts.updateAt
      FROM posts 
-     JOIN users ON users.id = posts.user_id 
+     JOIN users ON users.id = posts.users_id 
      JOIN categories ON categories.id = posts.categories_id
      WHERE status = ? 
      ORDER BY posts.id
@@ -69,8 +69,30 @@ const findAllPostCount = (status) => {
   });
 };
 
+const findSearchedPostCount = (status, search) => {
+  const q = `SELECT count(*) FROM posts WHERE status = ? AND title LIKE '%${search}%'`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, [status], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
+const findSearchedCategoryWisePostCount = (status, search) => {
+  const q = `SELECT count(*) FROM posts WHERE status = ? AND categories_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(q, [status, search], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
 const findPostsCountOfUser = (user_id, status) => {
-  const q = `SELECT count(*) FROM posts WHERE user_id = ? AND status = ?`;
+  const q = `SELECT count(*) FROM posts WHERE users_id = ? AND status = ?`;
 
   return new Promise((resolve, reject) => {
     db.query(q, [user_id, status], (err, results) => {
@@ -83,7 +105,7 @@ const findPostsCountOfUser = (user_id, status) => {
 const findPostByUser = (user_id, status, limit, offset) => {
   const q = `SELECT posts.id, posts.title, posts.img, posts.status, posts.createAt, posts.updateAt, categories.id AS categoryId, categories.category_name FROM posts 
   JOIN categories ON categories.id = posts.categories_id 
-  WHERE user_id = ? AND status = ? 
+  WHERE users_id = ? AND status = ? 
   ORDER BY posts.id DESC
   LIMIT ${limit} 
   OFFSET ${offset}`;
@@ -109,9 +131,9 @@ const findAllPostCountByCategory = (category_id) => {
 
 const findSinglePost = (id) => {
   const q = `
-    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admin_id, posts.createAt, posts.updateAt
+    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admins_id, posts.createAt, posts.updateAt
     FROM posts
-    JOIN users ON users.id = posts.user_id
+    JOIN users ON users.id = posts.users_id
     JOIN categories ON categories.id = posts.categories_id
     WHERE posts.id = ?
     `;
@@ -126,7 +148,7 @@ const findSinglePost = (id) => {
 
 const updateSinglePost = (info, uid) => {
   const q =
-    "UPDTAE INTO posts title=?, description=?, img=?, status=?, categories_id=?, updateAt=? WHERE id=? AND user_id=?";
+    "UPDATE INTO posts title=?, description=?, img=?, status=?, categories_id=?, updateAt=? WHERE id=? AND users_id=?";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -150,7 +172,7 @@ const updateSinglePost = (info, uid) => {
 };
 // admin service
 const approvedSinglePost = (info) => {
-  const q = `UPDATE posts SET status = ? WHERE id = ? AND user_id = ?`;
+  const q = `UPDATE posts SET status = ? WHERE id = ? AND users_id = ?`;
 
   return new Promise((resolve, reject) => {
     db.query(q, [info.status, info.id, info.user_id], (err, results) => {
@@ -182,4 +204,6 @@ module.exports = {
   findAllPostCountByCategory,
   findPostByUser,
   findPostsCountOfUser,
+  findSearchedPostCount,
+  findSearchedCategoryWisePostCount,
 };

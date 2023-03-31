@@ -5,7 +5,7 @@ module.exports.db = mysql.createConnection({
   host: config.db_host,
   user: config.db_user,
   password: config.db_password,
-  database: config.db_dadatabase,
+  database: config.db_database,
 });
 
 // if any authentication error is occurred
