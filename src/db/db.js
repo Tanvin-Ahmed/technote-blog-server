@@ -26,7 +26,7 @@ db.connect((err) => {
             );
           } else {
             const createAdmin = `CREATE TABLE IF NOT EXISTS admins (
-                          id INT NOT NULL AUTO_INCREMENT,
+                          id VARCHAR(255) NOT NULL,
                           username VARCHAR(245) NOT NULL,
                           email VARCHAR(255) NOT NULL,
                           password VARCHAR(545) NOT NULL,
@@ -38,7 +38,7 @@ db.connect((err) => {
             });
 
             const createCategories = `CREATE TABLE IF NOT EXISTS categories (
-                            id INT NOT NULL AUTO_INCREMENT,
+                            id VARCHAR(255) NOT NULL,
                             category_name VARCHAR(245) NOT NULL,
                             PRIMARY KEY (id)
                             )`;
@@ -48,7 +48,7 @@ db.connect((err) => {
             });
 
             const createUsers = `CREATE TABLE IF NOT EXISTS users (
-                        id INT NOT NULL AUTO_INCREMENT,
+                        id VARCHAR(255) NOT NULL,
                         username VARCHAR(245) NOT NULL,
                         email VARCHAR(245) NOT NULL,
                         password VARCHAR(245) NOT NULL,
@@ -61,14 +61,14 @@ db.connect((err) => {
             });
 
             const createPosts = `CREATE TABLE IF NOT EXISTS posts (
-                                id INT NOT NULL AUTO_INCREMENT,
+                                id VARCHAR(255) NOT NULL,
                                 title VARCHAR(255) NOT NULL,
                                 description LONGTEXT NOT NULL,
                                 img LONGTEXT NOT NULL,
                                 updateAt DATETIME NOT NULL,
                                 createAt DATETIME NOT NULL,
-                                users_id INT NOT NULL,
-                                categories_id INT NOT NULL,
+                                users_id VARCHAR(255) NOT NULL,
+                                categories_id VARCHAR(255) NOT NULL,
                                 status VARCHAR(45) NOT NULL,
                                 PRIMARY KEY (id),
                                 INDEX fk_posts_users1_idx (users_id ASC) VISIBLE,
@@ -88,12 +88,12 @@ db.connect((err) => {
             });
 
             const createComments = `CREATE TABLE IF NOT EXISTS comments (
-                                    id INT NOT NULL AUTO_INCREMENT,
+                                    id VARCHAR(255) NOT NULL,
                                     message LONGTEXT NOT NULL,
                                     createdAt DATETIME NOT NULL,
                                     updatedAt DATETIME NOT NULL,
-                                    posts_id INT NOT NULL,
-                                    users_id INT NOT NULL,
+                                    posts_id VARCHAR(255) NOT NULL,
+                                    users_id VARCHAR(255) NOT NULL,
                                     PRIMARY KEY (id),
                                     INDEX fk_comments_posts1_idx (posts_id ASC) VISIBLE,
                                     INDEX fk_comments_users1_idx (users_id ASC) VISIBLE,

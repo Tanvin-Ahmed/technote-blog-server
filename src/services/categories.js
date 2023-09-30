@@ -2,7 +2,7 @@ const { db } = require("../db/db");
 const { v4: uuidV4 } = require("uuid");
 
 const createNewCategory = (category) => {
-  const q = `INSERT INTO categories (id, category_name) VALUES(?)`;
+  const q = `INSERT INTO categories (id, category_name) VALUES(?, ?)`;
   return new Promise((resolve, reject) => {
     db.query(q, [uuidV4(), category], (err, result) => {
       if (err) reject(err);
