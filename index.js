@@ -12,7 +12,7 @@ const commentsRouter = require("./src/routes/comments");
 const app = express();
 
 const corsOptions = {
-  origin: "https://tech-note.netlify.app/",
+  origin: "https://tech-note.netlify.app",
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
