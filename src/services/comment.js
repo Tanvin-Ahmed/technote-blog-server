@@ -1,11 +1,13 @@
 const { db } = require("../db/db");
+const { v4: uuidV4 } = require("uuid");
 
 const createComment = (info) => {
-  const q = `INSERT INTO comments (message, posts_id, users_id, createdAt, updatedAt) VALUES (?,?,?,?,?)`;
+  const q = `INSERT INTO comments (id, message, posts_id, users_id, createdAt, updatedAt) VALUES (?,?,?,?,?,?)`;
   return new Promise((resolve, reject) => {
     db.query(
       q,
       [
+        uuidV4(),
         info.message,
         info.post_id,
         info.user_id,

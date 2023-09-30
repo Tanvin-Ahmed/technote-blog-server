@@ -1,4 +1,5 @@
 const { db } = require("../db/db");
+const { v4: uuidV4 } = require("uuid");
 
 const getExist = (email) => {
   const q = "SELECT * FROM users WHERE email = ?";
@@ -28,11 +29,11 @@ const isAdminExist = (email) => {
 
 const createUser = (info) => {
   const q =
-    "INSERT INTO users (email, username, password, img) VALUES (?,?,?,?)";
+    "INSERT INTO users (id, email, username, password, img) VALUES (?,?,?,?,?)";
   return new Promise((resolve, reject) => {
     db.query(
       q,
-      [info.email, info.username, info.password, info.img],
+      [uuidV4(), info.email, info.username, info.password, info.img],
       (err, rows) => {
         if (err) {
           reject(err);

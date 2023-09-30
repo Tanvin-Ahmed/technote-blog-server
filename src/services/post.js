@@ -1,13 +1,15 @@
 const { db } = require("../db/db");
+const { v4: uuidV4 } = require("uuid");
 
 const createPost = async (info, uid) => {
   const q =
-    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `users_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?)";
+    "INSERT INTO posts (`id`, `title`, `description`, `img`, `createAt`, `status`, `users_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
 
   return new Promise((resolve, reject) => {
     db.query(
       q,
       [
+        uuidV4(),
         info.title,
         info.description,
         info.img,
