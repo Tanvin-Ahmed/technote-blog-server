@@ -10,7 +10,7 @@ const categoriesRouter = require("./src/routes/categories");
 const commentsRouter = require("./src/routes/comments");
 
 const app = express();
-
+// https://tech-note.netlify.app
 const corsOptions = {
   origin: "https://tech-note.netlify.app",
   credentials: true, //access-control-allow-credentials:true
