@@ -10,6 +10,7 @@ const {
 const addComment = async (req, res) => {
   try {
     const info = { ...req.body, user_id: req.user.id };
+
     const data = await createComment(info);
     const comment = await findCommentById(data.insertId);
 
@@ -71,8 +72,8 @@ const modifyComment = async (req, res) => {
 
 const removeComment = async (req, res) => {
   try {
-    const { id, user_id, admin_id } = req.query;
-    await deleteComment(id, user_id, admin_id);
+    const { id, user_id } = req.query;
+    await deleteComment(id, user_id);
 
     return res
       .status(200)

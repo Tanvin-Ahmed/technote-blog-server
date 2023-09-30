@@ -1,9 +1,9 @@
 const { db } = require("../db/db");
 
 const createNewCategory = (category) => {
-  const q = `INSERT INTO categories (category_name, admins_id) VALUES(?, ?)`;
+  const q = `INSERT INTO categories (category_name) VALUES(?)`;
   return new Promise((resolve, reject) => {
-    db.query(q, [category, "1"], (err, result) => {
+    db.query(q, [category], (err, result) => {
       if (err) reject(err);
       else resolve(result);
     });

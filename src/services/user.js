@@ -28,11 +28,11 @@ const isAdminExist = (email) => {
 
 const createUser = (info) => {
   const q =
-    "INSERT INTO users (email, username, password, img, admins_id) VALUES (?,?,?,?,?)";
+    "INSERT INTO users (email, username, password, img) VALUES (?,?,?,?)";
   return new Promise((resolve, reject) => {
     db.query(
       q,
-      [info.email, info.username, info.password, info.img, "1"],
+      [info.email, info.username, info.password, info.img],
       (err, rows) => {
         if (err) {
           reject(err);

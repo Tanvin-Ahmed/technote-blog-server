@@ -2,7 +2,7 @@ const { db } = require("../db/db");
 
 const createPost = async (info, uid) => {
   const q =
-    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `admins_id`, `users_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO posts (`title`, `description`, `img`, `createAt`, `status`, `users_id`, `categories_id`, `updateAt`) VALUES(?,?,?,?,?,?,?,?)";
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -13,7 +13,6 @@ const createPost = async (info, uid) => {
         info.img,
         info.createAt,
         "pending",
-        "1",
         uid,
         info.category,
         info.updateAt,
@@ -41,7 +40,7 @@ const findAllPostByStatus = (status, category, search, limit, offset) => {
     ORDER BY posts.id DESC
     LIMIT ${limit} 
     OFFSET ${offset}`
-    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admins_id, posts.createAt, posts.updateAt
+    : `SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.createAt, posts.updateAt
      FROM posts 
      JOIN users ON users.id = posts.users_id 
      JOIN categories ON categories.id = posts.categories_id
@@ -131,7 +130,7 @@ const findAllPostCountByCategory = (category_id) => {
 
 const findSinglePost = (id) => {
   const q = `
-    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.admins_id, posts.createAt, posts.updateAt
+    SELECT users.id AS authorId, users.username AS authorName, users.img AS authorImg, posts.id, posts.img, posts.title, posts.description, posts.status, categories.category_name, categories.id AS categoryId, posts.createAt, posts.updateAt
     FROM posts
     JOIN users ON users.id = posts.users_id
     JOIN categories ON categories.id = posts.categories_id
@@ -170,6 +169,7 @@ const updateSinglePost = (info, uid) => {
     );
   });
 };
+
 // admin service
 const approvedSinglePost = (info) => {
   const q = `UPDATE posts SET status = ? WHERE id = ? AND users_id = ?`;

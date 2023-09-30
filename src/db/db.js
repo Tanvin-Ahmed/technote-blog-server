@@ -1,14 +1,124 @@
 const mysql = require("mysql");
 const { config } = require("../config/config");
 
-module.exports.db = mysql.createConnection({
-  host: config.db_host,
-  user: config.db_user,
-  password: config.db_password,
-  database: config.db_database,
+const db = mysql.createConnection(config.db_url);
+
+db.connect((err) => {
+  if (err) {
+    console.log(err.message);
+  } else {
+    // const removeSchemaSQL = `DROP DATABASE ${config.db_database}`;
+    // db.query(removeSchemaSQL, (err, result) => {
+    //   if (err) console.log(err);
+    //   else console.log(`DROP DATABASE`);
+    // });
+    const createSchemaSQL = `CREATE SCHEMA IF NOT EXISTS ${config.db_database}`;
+
+    db.query(createSchemaSQL, (err, _) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        db.changeUser({ database: config.db_database }, (err) => {
+          if (err) {
+            console.log(
+              `Error switching to the ${config.db_database} schema: ` +
+                err.message
+            );
+          } else {
+            const createAdmin = `CREATE TABLE IF NOT EXISTS admins (
+                          id INT NOT NULL AUTO_INCREMENT,
+                          username VARCHAR(245) NOT NULL,
+                          email VARCHAR(255) NOT NULL,
+                          password VARCHAR(545) NOT NULL,
+                          img LONGTEXT NULL DEFAULT NULL,
+                          PRIMARY KEY (id))`;
+            db.query(createAdmin, (err) => {
+              if (err) console.error(err.message);
+              else console.log("create admin table successfully");
+            });
+
+            const createCategories = `CREATE TABLE IF NOT EXISTS categories (
+                            id INT NOT NULL AUTO_INCREMENT,
+                            category_name VARCHAR(245) NOT NULL,
+                            PRIMARY KEY (id)
+                            )`;
+            db.query(createCategories, (err) => {
+              if (err) console.error(err);
+              else console.log("create categories table successfully");
+            });
+
+            const createUsers = `CREATE TABLE IF NOT EXISTS users (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        username VARCHAR(245) NOT NULL,
+                        email VARCHAR(245) NOT NULL,
+                        password VARCHAR(245) NOT NULL,
+                        img LONGTEXT NULL DEFAULT NULL,
+                        PRIMARY KEY (id)
+                        )`;
+            db.query(createUsers, (err) => {
+              if (err) console.error(err.message);
+              else console.log("create categories table successfully");
+            });
+
+            const createPosts = `CREATE TABLE IF NOT EXISTS posts (
+                                id INT NOT NULL AUTO_INCREMENT,
+                                title VARCHAR(255) NOT NULL,
+                                description LONGTEXT NOT NULL,
+                                img LONGTEXT NOT NULL,
+                                updateAt DATETIME NOT NULL,
+                                createAt DATETIME NOT NULL,
+                                users_id INT NOT NULL,
+                                categories_id INT NOT NULL,
+                                status VARCHAR(45) NOT NULL,
+                                PRIMARY KEY (id),
+                                INDEX fk_posts_users1_idx (users_id ASC) VISIBLE,
+                                INDEX fk_posts_categories1_idx (categories_id ASC) VISIBLE,
+                                CONSTRAINT fk_posts_categories1
+                                  FOREIGN KEY (categories_id)
+                                  REFERENCES categories (id),
+                                CONSTRAINT fk_posts_users1
+                                  FOREIGN KEY (users_id)
+                                  REFERENCES users (id)
+                                  ON DELETE CASCADE
+                                  ON UPDATE CASCADE)`;
+
+            db.query(createPosts, (err) => {
+              if (err) console.error(err.message);
+              else console.log("create posts table successfully");
+            });
+
+            const createComments = `CREATE TABLE IF NOT EXISTS comments (
+                                    id INT NOT NULL AUTO_INCREMENT,
+                                    message LONGTEXT NOT NULL,
+                                    createdAt DATETIME NOT NULL,
+                                    updatedAt DATETIME NOT NULL,
+                                    posts_id INT NOT NULL,
+                                    users_id INT NOT NULL,
+                                    PRIMARY KEY (id),
+                                    INDEX fk_comments_posts1_idx (posts_id ASC) VISIBLE,
+                                    INDEX fk_comments_users1_idx (users_id ASC) VISIBLE,
+                                    CONSTRAINT fk_comments_posts1
+                                      FOREIGN KEY (posts_id)
+                                      REFERENCES posts (id)
+                                      ON DELETE CASCADE
+                                      ON UPDATE CASCADE,
+                                    CONSTRAINT fk_comments_users1
+                                      FOREIGN KEY (users_id)
+                                      REFERENCES users (id)
+                                      ON DELETE CASCADE
+                                      ON UPDATE CASCADE)`;
+
+            db.query(createComments, (err) => {
+              if (err) console.error(err.message);
+              else console.log("create comments table successfully");
+            });
+          }
+          // Close the database connection
+          // db.end();
+        });
+      }
+    });
+  }
 });
 
-// if any authentication error is occurred
-// in mysql workbench write 2 query serially
-// 1st query: ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password';
-// 2nd query: flush privileges;
+module.exports = { db };

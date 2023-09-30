@@ -60,6 +60,8 @@ const userLogin = async (data, req, res) => {
     req.body.password
   );
 
+  console.log(isValidPassword);
+
   if (!isValidPassword) {
     return res.status(401).json({ message: "Wrong Email or Password!" });
   }
